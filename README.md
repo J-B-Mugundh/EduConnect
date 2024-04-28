@@ -128,7 +128,7 @@ To get started with QuizAppGemini, follow these steps:
 2. Navigate to the project directory:
 
     ```bash
-    cd QueryChat
+    cd QuizAppGemini
     ```
 
 4. Install dependencies:
