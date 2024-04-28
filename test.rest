@@ -1,0 +1,35 @@
+POST http://localhost:5000/auth/resend-mail HTTP/1.1
+content-type: application/json
+
+
+{
+    "email": "vijaisuria04@gmail.com"
+}
+
+###
+
+POST http://localhost:5000/auth/register HTTP/1.1
+content-type: application/json
+
+
+{
+    "email": "vijaisuria87@gmail.com",
+    "password": "123456",
+}
+
+###
+
+POST http://localhost:5000/course/sendmail?cid=1&uid=3 HTTP/1.1
+content-type: application/json
+
+{
+    "meeting_code": "214235",
+    "reciever_email": "vijaisuria04@gmail.com"
+}
+
+###
+
+POST http://localhost:5000/enrollment/check-status?cid=3 HTTP/1.1
+content-type: application/json
+
+{}
