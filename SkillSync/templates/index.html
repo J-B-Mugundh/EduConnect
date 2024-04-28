@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Sync</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Centering the Skill Gap Analysis section */
+        .analysis-section {
+            text-align: center;
+            margin-top: 50px;
+        }
+        /* Styling for the skill list */
+        .skill-list {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        .skill-list li {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Skill Sync</h1>
+        <form id="skillSyncForm">
+            <div class="form-group">
+                <label for="careerGoal">Career Goal:</label>
+                <input type="text" class="form-control" id="careerGoal" name="careerGoal">
+            </div>
+            
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="manualSkills" name="manualSkills" onchange="toggleSkillsInput()">
+                <label class="form-check-label" for="manualSkills">Manually add skills</label>
+            </div>
+            <div id="manualSkillsInput" style="display:none;">
+                <div class="form-group">
+                    <label for="skill">Skill:</label>
+                    <input type="text" class="form-control" id="skill" name="skill[]">
+                    <button type="button" class="btn btn-primary mt-2" onclick="addSkill()">Add Skill</button>
+                </div>
+            </div>
+            
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="linkedinSkills" name="linkedinSkills" onchange="toggleLinkedinInput()">
+                <label class="form-check-label" for="linkedinSkills">Import skills from LinkedIn</label>
+            </div>
+            <div id="linkedinInput" style="display:none;">
+                <div class="form-group">
+                    <label for="linkedinUsername">LinkedIn Username:</label>
+                    <input type="text" class="form-control" id="linkedinUsername" name="linkedinUsername">
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button>
+        </form>
+
+        <div id="responseSection"></div>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function toggleSkillsInput() {
+            var manualSkillsInput = document.getElementById("manualSkillsInput");
+            if (document.getElementById("manualSkills").checked) {
+                manualSkillsInput.style.display = "block";
+            } else {
+                manualSkillsInput.style.display = "none";
+            }
+        }
+    
+        function toggleLinkedinInput() {
+            var linkedinInput = document.getElementById("linkedinInput");
+            if (document.getElementById("linkedinSkills").checked) {
+                linkedinInput.style.display = "block";
+            } else {
+                linkedinInput.style.display = "none";
+            }
+        }
+    
+        function addSkill() {
+            var skillInput = document.createElement("input");
+            skillInput.setAttribute("type", "text");
+            skillInput.setAttribute("name", "skill[]");
+            var skill = document.getElementById("skill").value.trim();
+            if (skill !== "") {
+                skillInput.value = skill;
+                document.getElementById("skill").value = "";
+                document.getElementById("manualSkillsInput").appendChild(skillInput);
+            }
+        }
+
+        function submitForm() {
+            var form = document.getElementById("skillSyncForm");
+            var formData = new FormData(form);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:5000/add_user_skill", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    displayResponse(response);
+                }
+            };
+            xhr.send(JSON.stringify(Object.fromEntries(formData.entries())));
+        }
+
+        function displayResponse(response) {
+            var responseSection = document.getElementById("responseSection");
+            responseSection.innerHTML = "";
+            if (response.profile_data) {
+                var analysisSection = document.createElement("div");
+                analysisSection.className = "analysis-section";
+                if (response.gemini_response) {
+                    var geminiResponse = document.createElement("p");
+                    geminiResponse.textContent = response.gemini_response;
+                    analysisSection.appendChild(geminiResponse);
+                }
+                if (response.courses) {
+                    var recommendedCourses = document.createElement("ul");
+                    recommendedCourses.className = "skill-list";
+                    response.courses.forEach(function (course) {
+                        var listItem = document.createElement("li");
+                        listItem.textContent = course;
+                        recommendedCourses.appendChild(listItem);
+                    });
+                    analysisSection.appendChild(recommendedCourses);
+                    var proceedButton = document.createElement("button");
+                    proceedButton.textContent = "Proceed to EduConnect";
+                    proceedButton.onclick = function () {
+                        window.location.href = "http://localhost:5000";
+                    };
+                    analysisSection.appendChild(proceedButton);
+                }
+                responseSection.appendChild(analysisSection);
+            }
+        }
+    </script>
+</body>
+</html>
